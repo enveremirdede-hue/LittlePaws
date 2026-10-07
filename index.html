@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LittlePaws - Stray Animal Welfare & Protection Hub</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Comfortaa & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        coral: {
+                            50: '#fff5f2',
+                            100: '#ffe8e1',
+                            200: '#ffd5c7',
+                            300: '#ffb39e',
+                            400: '#ff8668',
+                            500: '#ff7043', // Primary Coral
+                            600: '#f4511e',
+                            700: '#d83a0c',
+                            800: '#b0300e',
+                            900: '#8c2c13',
+                        },
+                        warmgold: {
+                            100: '#fff9e6',
+                            400: '#ffca28',
+                            500: '#ffb300',
+                            600: '#ffa000',
+                        },
+                        tealish: {
+                            50: '#e0f2f1',
+                            100: '#b2dfdb',
+                            500: '#26a69a',
+                            600: '#00897b',
+                            700: '#00695c',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        rounded: ['Comfortaa', 'cursive']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @keyframes floatPaw {
+            0% { transform: translateY(100vh) rotate(0deg) scale(0.8); opacity: 0; }
+            20% { opacity: 0.2; }
+            80% { opacity: 0.2; }
+            100% { transform: translateY(-10vh) rotate(360deg) scale(1.2); opacity: 0; }
+        }
+
+        @keyframes tailWag {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(16deg); }
+        }
+
+        @keyframes eyeBlink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
+        }
+
+        @keyframes earTwitch {
+            0%, 90%, 100% { transform: rotate(0deg); }
+            93% { transform: rotate(-8deg); }
+            96% { transform: rotate(6deg); }
+        }
+
+        .animate-tail {
+            transform-origin: 10% 90%;
+            animation: tailWag 1.8s ease-in-out infinite;
+        }
+
+        .animate-blink {
+            transform-origin: center;
+            animation: eyeBlink 4s infinite;
+        }
+
+        .animate-ear {
+            transform-origin: bottom center;
+            animation: earTwitch 4.5s infinite;
+        }
+
+        .paw-bg-item {
+            position: absolute;
+            pointer-events: none;
+            color: #ff7043;
+            animation: floatPaw linear infinite;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .btn-glow {
+            box-shadow: 0 0 20px rgba(255, 112, 67, 0.35);
+            transition: all 0.3s ease;
+        }
+        .btn-glow:hover {
+            box-shadow: 0 0 28px rgba(255, 112, 67, 0.6);
+            transform: translateY(-2px);
+        }
+
+        /* Canvas game styling */
+        #gameCanvas {
+            background: #E8F5E9;
+            touch-action: none;
+        }
+    </style>
+</head>
+<body class="bg-coral-50 text-slate-800 font-sans leading-relaxed selection:bg-coral-200 selection:text-coral-900 overflow-x-hidden relative">
+
+    <!-- Floating Paw Particle Background -->
+    <div id="pawContainer" class="fixed inset-0 overflow-hidden pointer-events-none z-0 opacity-30"></div>
+
+    <header class="sticky top-0 z-50 glass-card transition-all duration-300 shadow-sm border-b border-coral-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Brand Logo -->
+                <a href="#" class="flex items-center gap-3 group">
+                    <div class="w-12 h-12 bg-gradient-to-tr from-coral-500 to-warmgold-400 rounded-2xl flex items-center justify-center text-white shadow-lg transform group-hover:rotate-12 transition-transform duration-300">
+                        <i class="fa-solid fa-paw text-2xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-rounded font-bold text-2xl bg-gradient-to-r from-coral-600 to-warmgold-600 bg-clip-text text-transparent block">LittlePaws</span>
+                        <span class="text-[10px] font-bold tracking-wider text-slate-500 uppercase block -mt-1">Stray Welfare Hub</span>
+                    </div>
+                </a>
+
+                <!-- Navigation Links -->
+                <nav class="hidden lg:flex items-center gap-7 font-medium text-slate-700 text-sm">
+                    <a href="#why-care" class="hover:text-coral-600 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-heart text-coral-500 text-xs"></i> Why Care</a>
+                    <a href="#calculator" class="hover:text-coral-600 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-calculator text-coral-500 text-xs"></i> Food Calculator</a>
+                    <a href="#game-section" class="hover:text-coral-600 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-gamepad text-coral-500 text-xs"></i> Rescue Game</a>
+                    <a href="#survival-guide" class="hover:text-coral-600 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-snowflake text-coral-500 text-xs"></i> Survival Guide</a>
+                    <a href="#guardian-quiz" class="hover:text-coral-600 transition-colors flex items-center gap-1.5"><i class="fa-solid fa-certificate text-coral-500 text-xs"></i> Certification</a>
+                </nav>
+
+                <!-- Audio Toggle & Action Button -->
+                <div class="hidden sm:flex items-center gap-3">
+                    <button id="soundToggleBtn" onclick="toggleAudio()" class="p-2.5 bg-white border border-slate-200 text-slate-600 hover:text-coral-600 rounded-xl shadow-sm transition" title="Toggle Sound Effects">
+                        <i id="soundIcon" class="fa-solid fa-volume-high text-lg"></i>
+                    </button>
+                    <a href="#calculator" class="btn-glow px-5 py-2.5 bg-gradient-to-r from-coral-500 to-coral-600 text-white font-bold text-sm rounded-full shadow-md flex items-center gap-2 hover:from-coral-600 hover:to-coral-700">
+                        <i class="fa-solid fa-bowl-food"></i> Calculate Needs
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobileMenuBtn" class="lg:hidden p-2.5 rounded-xl text-slate-700 hover:bg-coral-100 focus:outline-none" aria-label="Open Navigation">
+                    <i class="fa-solid fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Drawer -->
+        <div id="mobileMenu" class="hidden lg:hidden bg-white/95 border-b border-coral-100 px-4 pt-2 pb-6 space-y-3">
+            <a href="#why-care" class="mobile-link block px-3 py-2 rounded-lg hover:bg-coral-50 text-slate-700 font-medium">Why Care Matters</a>
+            <a href="#calculator" class="mobile-link block px-3 py-2 rounded-lg hover:bg-coral-50 text-slate-700 font-medium">Food & Water Calculator</a>
+            <a href="#game-section" class="mobile-link block px-3 py-2 rounded-lg hover:bg-coral-50 text-slate-700 font-medium">Play Rescue Game</a>
+            <a href="#survival-guide" class="mobile-link block px-3 py-2 rounded-lg hover:bg-coral-50 text-slate-700 font-medium">Survival & Shelter Guide</a>
+            <a href="#guardian-quiz" class="mobile-link block px-3 py-2 rounded-lg hover:bg-coral-50 text-slate-700 font-medium">Guardian Certification</a>
+        </div>
+    </header>
+
+    <section class="relative pt-12 pb-20 md:pt-20 md:pb-28 overflow-hidden z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+
+                <!-- Hero Headline & Copy -->
+                <div class="lg:col-span-7 text-center lg:text-left space-y-6">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-coral-100 text-coral-800 font-semibold text-xs sm:text-sm border border-coral-200">
+                        <span class="w-2.5 h-2.5 rounded-full bg-coral-500 animate-ping"></span>
+                        <i class="fa-solid fa-heart text-xs text-coral-600"></i> Empowering Compassion for Street Animals
+                    </div>
+
+                    <h1 class="font-rounded font-extrabold text-4xl sm:text-5xl lg:text-6xl text-slate-900 leading-tight">
+                        Every Paw Deserves <br class="hidden sm:inline">
+                        <span class="bg-gradient-to-r from-coral-500 via-warmgold-500 to-coral-600 bg-clip-text text-transparent">Care, Respect, & Protection.</span>
+                    </h1>
+
+                    <p class="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto lg:mx-0">
+                        Neighborhood stray cats and dogs aren't invaders—they are our silent community members. Learn scientific feeding requirements, play our rescue game, build low-cost winter shelters, and become a certified Stray Guardian today!
+                    </p>
+
+                    <div class="pt-4 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                        <a href="#calculator" class="w-full sm:w-auto px-7 py-3.5 bg-coral-600 text-white font-bold rounded-2xl shadow-lg hover:bg-coral-700 transform hover:-translate-y-0.5 transition flex items-center justify-center gap-2.5 text-base btn-glow">
+                            <i class="fa-solid fa-calculator"></i>
+                            <span>Calculate Feeding Needs</span>
+                        </a>
+                        <a href="#game-section" class="w-full sm:w-auto px-7 py-3.5 bg-white text-slate-700 font-bold rounded-2xl shadow-md border border-slate-200 hover:bg-slate-50 transition flex items-center justify-center gap-2.5 text-base">
+                            <i class="fa-solid fa-gamepad text-coral-500"></i>
+                            <span>Play Rescue Patrol</span>
+                        </a>
+                    </div>
+
+                    <!-- Impact Counter Statistics Bar -->
+                    <div class="pt-8 grid grid-cols-3 gap-4 border-t border-coral-200/70 max-w-lg mx-auto lg:mx-0">
+                        <div class="text-center lg:text-left">
+                            <span class="block text-2xl sm:text-3xl font-extrabold font-rounded text-coral-600">100%</span>
+                            <span class="text-xs text-slate-500 font-medium">Scientific Formulas</span>
+                        </div>
+                        <div class="text-center lg:text-left border-x border-coral-200/70 px-2">
+                            <span class="block text-2xl sm:text-3xl font-extrabold font-rounded text-warmgold-600">TNR</span>
+                            <span class="text-xs text-slate-500 font-medium">Humane Care Focus</span>
+                        </div>
+                        <div class="text-center lg:text-left">
+                            <span class="block text-2xl sm:text-3xl font-extrabold font-rounded text-tealish-600">Free</span>
+                            <span class="text-xs text-slate-500 font-medium">Guardian Certificate</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Vector Graphic SVG Art -->
+                <div class="lg:col-span-5 flex justify-center">
+                    <div class="relative w-full max-w-md aspect-square bg-gradient-to-b from-warmgold-100 via-coral-100 to-coral-200/70 rounded-3xl p-6 shadow-2xl flex items-center justify-center border-4 border-white/80 backdrop-blur-sm">
+                        <!-- Floating Badges -->
+                        <div class="absolute -top-4 -left-4 bg-white px-4 py-2 rounded-2xl shadow-lg border border-coral-100 flex items-center gap-2 animate-bounce">
+                            <span class="text-2xl">🐱</span>
+                            <span class="text-xs font-bold text-slate-700">Fresh Water Saves Lives!</span>
+                        </div>
+
+                        <div class="absolute -bottom-4 -right-4 bg-white px-4 py-2 rounded-2xl shadow-lg border border-coral-100 flex items-center gap-2">
+                            <span class="text-2xl">🐶</span>
+                            <span class="text-xs font-bold text-slate-700">Tap Hood in Winter!</span>
+                        </div>
+
+                        <!-- SVG Stray Dog & Cat Illustration -->
+                        <svg class="w-full h-full drop-shadow-xl" viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="250" cy="250" r="210" fill="#FFE8D6" opacity="0.7"/>
+
+                            <!-- DOG SVG -->
+                            <g id="heroDog" transform="translate(220, 160)">
+                                <path class="animate-tail" d="M 180 180 Q 220 150 200 110" stroke="#C86D3B" stroke-width="22" stroke-linecap="round" fill="none"/>
+                                <ellipse cx="120" cy="180" rx="75" ry="65" fill="#E88748"/>
+                                <rect x="70" y="220" width="22" height="60" rx="11" fill="#C86D3B"/>
+                                <rect x="140" y="220" width="22" height="60" rx="11" fill="#C86D3B"/>
+                                <circle cx="90" cy="90" r="60" fill="#E88748"/>
+                                <ellipse cx="70" cy="105" rx="32" ry="24" fill="#FFE3D1"/>
+                                <path d="M 60 95 Q 70 88 80 95 Q 70 110 60 95" fill="#3D261A"/>
+                                <path d="M 66 108 Q 70 128 76 108" fill="#FF7B7B"/>
+                                <path class="animate-ear" d="M 40 45 C 20 50 10 90 30 100 C 45 90 45 60 40 45 Z" fill="#9C4A1B"/>
+                                <path d="M 130 45 C 150 50 160 90 140 100 C 125 90 125 60 130 45 Z" fill="#9C4A1B"/>
+                                <circle class="animate-blink" cx="65" cy="75" r="7" fill="#2C1810"/>
+                                <circle class="animate-blink" cx="105" cy="75" r="7" fill="#2C1810"/>
+                                <circle cx="63" cy="73" r="2.5" fill="#FFFFFF"/>
+                                <circle cx="103" cy="73" r="2.5" fill="#FFFFFF"/>
+                            </g>
+
+                            <!-- CAT SVG -->
+                            <g id="heroCat" transform="translate(70, 190)">
+                                <path class="animate-tail" d="M 20 160 Q -30 110 0 70" stroke="#475569" stroke-width="16" stroke-linecap="round" fill="none"/>
+                                <ellipse cx="80" cy="150" rx="55" ry="50" fill="#334155"/>
+                                <ellipse cx="90" cy="155" rx="32" ry="35" fill="#FEF08A"/>
+                                <circle cx="90" cy="75" r="48" fill="#334155"/>
+                                <polygon class="animate-ear" points="50,45 65,5 85,40" fill="#334155"/>
+                                <polygon points="53,42 65,12 80,38" fill="#F472B6"/>
+                                <polygon class="animate-ear" points="130,45 115,5 95,40" fill="#334155"/>
+                                <polygon points="127,42 115,12 100,38" fill="#F472B6"/>
+                                <ellipse class="animate-blink" cx="72" cy="70" rx="8" ry="11" fill="#10B981"/>
+                                <ellipse class="animate-blink" cx="108" cy="70" rx="8" ry="11" fill="#10B981"/>
+                                <line x1="72" y1="62" x2="72" y2="78" stroke="#064E3B" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="108" y1="62" x2="108" y2="78" stroke="#064E3B" stroke-width="3" stroke-linecap="round"/>
+                                <polygon points="87,82 93,82 90,86" fill="#F472B6"/>
+                                <line x1="60" y1="82" x2="30" y2="78" stroke="#E2E8F0" stroke-width="2.5"/>
+                                <line x1="60" y1="87" x2="32" y2="89" stroke="#E2E8F0" stroke-width="2.5"/>
+                                <line x1="120" y1="82" x2="150" y2="78" stroke="#E2E8F0" stroke-width="2.5"/>
+                                <line x1="120" y1="87" x2="148" y2="89" stroke="#E2E8F0" stroke-width="2.5"/>
+                            </g>
+
+                            <!-- Food & Water Bowls -->
+                            <g transform="translate(190, 365)">
+                                <ellipse cx="50" cy="30" rx="45" ry="15" fill="#CBD5E1"/>
+                                <path d="M 5 30 Q 15 65 50 65 Q 85 65 95 30 Z" fill="#94A3B8"/>
+                                <ellipse cx="50" cy="28" rx="38" ry="10" fill="#E11D48"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="why-care" class="py-20 bg-white relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
+                <span class="text-coral-600 font-bold uppercase tracking-wider text-xs bg-coral-100 px-4 py-1.5 rounded-full inline-block">Coexistence & Empathy</span>
+                <h2 class="font-rounded font-bold text-3xl sm:text-4xl text-slate-900">Why Protecting Street Animals Matters</h2>
+                <p class="text-slate-600 text-base sm:text-lg">
+                    Stray cats and dogs have shared urban environments with humans for centuries. Caring for them is a reflection of a civilized, compassionate, and healthy society.
+                </p>
+            </div>
+
+            <!-- 4 Pillar Feature Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Card 1 -->
+                <div class="glass-card p-8 rounded-3xl hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-coral-100 group">
+                    <div class="w-14 h-14 bg-coral-100 text-coral-600 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 group-hover:bg-coral-600 group-hover:text-white transition duration-300">
+                        <i class="fa-solid fa-tree"></i>
+                    </div>
+                    <h3 class="font-rounded font-bold text-xl text-slate-900 mb-3">Urban Ecological Balance</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        Street cats naturally control rodent and pest populations in urban centers, preventing vector-borne diseases without harsh toxic chemicals.
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="glass-card p-8 rounded-3xl hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-coral-100 group">
+                    <div class="w-14 h-14 bg-warmgold-100 text-warmgold-600 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 group-hover:bg-warmgold-500 group-hover:text-white transition duration-300">
+                        <i class="fa-solid fa-notes-medical"></i>
+                    </div>
+                    <h3 class="font-rounded font-bold text-xl text-slate-900 mb-3">TNR & Health Management</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        Trap-Neuter-Return (TNR) alongside rabies vaccination programs keeps street animal populations stable, healthy, and friendly.
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="glass-card p-8 rounded-3xl hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-coral-100 group">
+                    <div class="w-14 h-14 bg-tealish-100 text-tealish-600 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 group-hover:bg-tealish-600 group-hover:text-white transition duration-300">
+                        <i class="fa-solid fa-people-group"></i>
+                    </div>
+                    <h3 class="font-rounded font-bold text-xl text-slate-900 mb-3">Community Empathy</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        Communities that foster kindness towards stray animals raise children with higher emotional intelligence, empathy, and social responsibility.
+                    </p>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="glass-card p-8 rounded-3xl hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-coral-100 group">
+                    <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center text-2xl mb-6 group-hover:scale-110 group-hover:bg-rose-600 group-hover:text-white transition duration-300">
+                        <i class="fa-solid fa-temperature-arrow-down"></i>
+                    </div>
+                    <h3 class="font-rounded font-bold text-xl text-slate-900 mb-3">Seasonal Survival Support</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        Without human assistance, extreme winter freezing and summer dehydration cause severe suffering. Simple daily steps make survival possible.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="calculator" class="py-20 bg-coral-50/70 border-t border-coral-100 relative z-10">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="glass-card rounded-3xl p-6 sm:p-12 shadow-xl border border-white">
+                <div class="text-center max-w-3xl mx-auto mb-10 space-y-3">
+                    <span class="text-coral-600 font-bold uppercase tracking-wider text-xs bg-coral-100 px-3 py-1 rounded-full">Veterinary-Grade Formula</span>
+                    <h2 class="font-rounded font-bold text-3xl sm:text-4xl text-slate-900">Scientific Stray Food & Water Calculator</h2>
+                    <p class="text-slate-600 text-sm sm:text-base">
+                        Uses Rest Energy Requirement ($RER = 70 \times \text{body weight}^{0.75}$) and DER multipliers to calculate exact nutritional needs for neighborhood stray pets.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <!-- Calculator Inputs -->
+                    <div class="lg:col-span-7 bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-100 space-y-6">
+                        <h3 class="font-rounded font-bold text-lg text-slate-900 border-b pb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-coral-500"></i> 1. Enter Stray Population
+                        </h3>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Adult Cats -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1 flex justify-between">
+                                    <span>🐱 Adult Cats (~4 kg):</span>
+                                    <span id="catVal" class="text-coral-600 font-extrabold">4</span>
+                                </label>
+                                <input type="range" id="catInput" min="0" max="40" value="4" oninput="runCalculator()" class="w-full accent-coral-500 h-2 bg-slate-200 rounded-lg cursor-pointer">
+                            </div>
+
+                            <!-- Kittens -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1 flex justify-between">
+                                    <span>🐾 Kittens (<6 mo, ~1.5 kg):</span>
+                                    <span id="kittenVal" class="text-coral-600 font-extrabold">2</span>
+                                </label>
+                                <input type="range" id="kittenInput" min="0" max="25" value="2" oninput="runCalculator()" class="w-full accent-coral-500 h-2 bg-slate-200 rounded-lg cursor-pointer">
+                            </div>
+
+                            <!-- Small Dogs -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1 flex justify-between">
+                                    <span>🐕 Small Dogs (<10 kg):</span>
+                                    <span id="smallDogVal" class="text-warmgold-600 font-extrabold">2</span>
+                                </label>
+                                <input type="range" id="smallDogInput" min="0" max="20" value="2" oninput="runCalculator()" class="w-full accent-warmgold-500 h-2 bg-slate-200 rounded-lg cursor-pointer">
+                            </div>
+
+                            <!-- Medium Dogs -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1 flex justify-between">
+                                    <span>🦮 Medium Dogs (10-25 kg):</span>
+                                    <span id="medDogVal" class="text-warmgold-600 font-extrabold">1</span>
+                                </label>
+                                <input type="range" id="medDogInput" min="0" max="15" value="1" oninput="runCalculator()" class="w-full accent-warmgold-500 h-2 bg-slate-200 rounded-lg cursor-pointer">
+                            </div>
+
+                            <!-- Large Dogs -->
+                            <div class="sm:col-span-2">
+                                <label class="block text-xs font-bold text-slate-700 mb-1 flex justify-between">
+                                    <span>🐕‍🦺 Large Dogs (>25 kg):</span>
+                                    <span id="largeDogVal" class="text-warmgold-600 font-extrabold">0</span>
+                                </label>
+                                <input type="range" id="largeDogInput" min="0" max="10" value="0" oninput="runCalculator()" class="w-full accent-warmgold-500 h-2 bg-slate-200 rounded-lg cursor-pointer">
+                            </div>
+                        </div>
+
+                        <h3 class="font-rounded font-bold text-lg text-slate-900 border-b pb-3 pt-2 flex items-center gap-2">
+                            <i class="fa-solid fa-cloud-sun-rain text-coral-500"></i> 2. Season & Food Format
+                        </h3>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Current Season:</label>
+                                <select id="seasonSelect" onchange="runCalculator()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:outline-none focus:border-coral-500">
+                                    <option value="spring">Mild Season (Standard)</option>
+                                    <option value="summer">Hot Summer (+30% Water Needed)</option>
+                                    <option value="winter">Freezing Winter (+25% Calorie Need)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Diet Mix Provided:</label>
+                                <select id="dietSelect" onchange="runCalculator()" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 focus:outline-none focus:border-coral-500">
+                                    <option value="kibble">100% Dry Kibble</option>
+                                    <option value="mixed">50% Kibble / 50% Wet Canned Food</option>
+                                    <option value="wet">100% Wet Canned Food</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Output Results Card -->
+                    <div class="lg:col-span-5 bg-gradient-to-br from-slate-900 to-slate-800 text-white p-6 sm:p-8 rounded-3xl shadow-xl flex flex-col justify-between space-y-6">
+                        <div>
+                            <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                                <h3 class="font-rounded font-bold text-xl text-warmgold-400 flex items-center gap-2">
+                                    <i class="fa-solid fa-chart-line"></i> Daily Requirement
+                                </h3>
+                                <span class="text-[10px] uppercase font-bold bg-white/10 px-2.5 py-1 rounded-full text-slate-300">RER Verified</span>
+                            </div>
+
+                            <!-- Stat Grid -->
+                            <div class="grid grid-cols-2 gap-4 my-6">
+                                <div class="bg-white/10 backdrop-blur p-4 rounded-2xl border border-white/10">
+                                    <span class="text-xs text-slate-300 block mb-1">Energy Required</span>
+                                    <span id="resCalories" class="text-2xl sm:text-3xl font-extrabold font-rounded text-coral-400">2,150</span>
+                                    <span class="text-[10px] text-slate-400 block">kcal / day</span>
+                                </div>
+
+                                <div class="bg-white/10 backdrop-blur p-4 rounded-2xl border border-white/10">
+                                    <span class="text-xs text-slate-300 block mb-1">Clean Water</span>
+                                    <span id="resWater" class="text-2xl sm:text-3xl font-extrabold font-rounded text-tealish-500">4.2</span>
+                                    <span class="text-[10px] text-slate-400 block">Liters / day</span>
+                                </div>
+
+                                <div class="bg-white/10 backdrop-blur p-4 rounded-2xl border border-white/10">
+                                    <span class="text-xs text-slate-300 block mb-1">Dry Kibble</span>
+                                    <span id="resKibble" class="text-2xl sm:text-3xl font-extrabold font-rounded text-warmgold-400">565</span>
+                                    <span class="text-[10px] text-slate-400 block">Grams / day</span>
+                                </div>
+
+                                <div class="bg-white/10 backdrop-blur p-4 rounded-2xl border border-white/10">
+                                    <span class="text-xs text-slate-300 block mb-1">Wet Cans (300g)</span>
+                                    <span id="resWetCans" class="text-2xl sm:text-3xl font-extrabold font-rounded text-rose-400">0.0</span>
+                                    <span class="text-[10px] text-slate-400 block">Cans / day</span>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2 text-xs text-slate-300 border-t border-white/10 pt-4">
+                                <div class="flex justify-between">
+                                    <span>Estimated Monthly Kibble:</span>
+                                    <strong id="resMonthlyKibble" class="text-white">17.0 Kg</strong>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Recommended Bowl Stations:</span>
+                                    <strong id="resBowlsCount" class="text-white">3 Water, 3 Food Stations</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="copyCalcSummary()" class="w-full py-3 bg-coral-500 hover:bg-coral-600 text-white font-bold rounded-xl transition text-sm flex items-center justify-center gap-2 shadow-md">
+                            <i class="fa-solid fa-copy"></i> Copy Feeding Plan Summary
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-10 pt-8 border-t border-slate-200">
+                    <h3 class="font-rounded font-bold text-xl text-slate-900 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation text-rose-500"></i> Toxic vs. Safe Foods Checklist
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Toxic Foods (RED) -->
+                        <div class="bg-rose-50 border border-rose-200 p-5 rounded-2xl space-y-3">
+                            <h4 class="font-bold text-rose-800 text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-ban text-rose-600"></i> NEVER FEED STRAY PETS:
+                            </h4>
+                            <ul class="text-xs text-slate-700 space-y-2">
+                                <li class="flex items-start gap-2"><strong class="text-rose-700">Chocolate & Coffee:</strong> Contains toxic theobromine causing cardiac arrest.</li>
+                                <li class="flex items-start gap-2"><strong class="text-rose-700">Cooked Bones:</strong> Splinter easily and tear stomach/bowel lining.</li>
+                                <li class="flex items-start gap-2"><strong class="text-rose-700">Onions & Garlic:</strong> Destroys red blood cells causing severe anemia.</li>
+                                <li class="flex items-start gap-2"><strong class="text-rose-700">Cow's Milk:</strong> Stray cats/dogs are lactose intolerant; causes diarrhea & dehydration.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Safe Foods (GREEN) -->
+                        <div class="bg-tealish-50 border border-tealish-200 p-5 rounded-2xl space-y-3">
+                            <h4 class="font-bold text-tealish-800 text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-circle-check text-tealish-600"></i> SAFE & NUTRITIOUS ALTERNATIVES:
+                            </h4>
+                            <ul class="text-xs text-slate-700 space-y-2">
+                                <li class="flex items-start gap-2"><strong class="text-tealish-700">Plain Unseasoned Boiled Chicken:</strong> Excellent digestible protein for weak strays.</li>
+                                <li class="flex items-start gap-2"><strong class="text-tealish-700">Commercial Dry/Wet Food:</strong> Complete balanced nutrition formulated for cats/dogs.</li>
+                                <li class="flex items-start gap-2"><strong class="text-tealish-700">Boiled Rice & Pumpkin:</strong> Helps settle digestive distress and upset stomach.</li>
+                                <li class="flex items-start gap-2"><strong class="text-tealish-700">Clean Fresh Water:</strong> The #1 most critical resource for summer and winter survival!</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="game-section" class="py-20 bg-white relative z-10">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-10 space-y-3">
+                <span class="text-tealish-700 font-bold uppercase tracking-wider text-xs bg-tealish-100 px-3 py-1 rounded-full">Interactive Arcade Simulation</span>
+                <h2 class="font-rounded font-bold text-3xl sm:text-4xl text-slate-900">Neighborhood Rescue Patrol</h2>
+                <p class="text-slate-600 text-sm sm:text-base">
+                    Control your Rescue Guardian! Pick up supplies from refill stations and deliver them to stray cats and dogs before their patience timer runs out.
+                </p>
+            </div>
+
+            <!-- Canvas Container Box -->
+            <div class="bg-slate-900 rounded-3xl p-4 sm:p-6 shadow-2xl border-4 border-slate-800 relative overflow-hidden text-white">
+
+                <!-- HUD Bar -->
+                <div class="flex flex-wrap items-center justify-between gap-4 bg-slate-800/90 p-3 sm:p-4 rounded-2xl mb-4 border border-slate-700">
+                    <div class="flex items-center gap-4">
+                        <div>
+                            <span class="text-[10px] text-slate-400 uppercase block font-bold">Score</span>
+                            <span id="gameScore" class="text-xl sm:text-2xl font-extrabold font-rounded text-warmgold-400">0</span>
+                        </div>
+                        <div class="border-l border-slate-700 pl-4">
+                            <span class="text-[10px] text-slate-400 uppercase block font-bold">Combo</span>
+                            <span id="gameCombo" class="text-xl sm:text-2xl font-extrabold font-rounded text-coral-400">x1</span>
+                        </div>
+                        <div class="border-l border-slate-700 pl-4">
+                            <span class="text-[10px] text-slate-400 uppercase block font-bold">Carrying</span>
+                            <span id="gameItem" class="text-sm font-bold text-emerald-400">None</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <div class="text-right">
+                            <span class="text-[10px] text-slate-400 uppercase block font-bold">Time Left</span>
+                            <span id="gameTimer" class="text-xl sm:text-2xl font-extrabold font-rounded text-tealish-400">60s</span>
+                        </div>
+                        <button id="gameStartBtn" onclick="startGame()" class="px-5 py-2.5 bg-coral-500 hover:bg-coral-600 font-bold rounded-xl text-white text-sm transition shadow-lg">
+                            <i class="fa-solid fa-play mr-1"></i> Start Game
+                        </button>
+                    </div>
+                </div>
+
+                <!-- HTML5 Canvas Element -->
+                <div class="relative aspect-[16/10] w-full rounded-2xl overflow-hidden shadow-inner border border-slate-700">
+                    <canvas id="gameCanvas" width="800" height="500" class="w-full h-full block"></canvas>
+
+                    <!-- Game Overlay Modal -->
+                    <div id="gameOverlay" class="absolute inset-0 bg-slate-950/85 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center space-y-4">
+                        <div class="w-16 h-16 bg-coral-500/20 text-coral-400 rounded-2xl flex items-center justify-center text-3xl border border-coral-500/40">
+                            <i class="fa-solid fa-gamepad"></i>
+                        </div>
+                        <h3 id="overlayTitle" class="font-rounded font-bold text-2xl sm:text-3xl text-white">Neighborhood Rescue Patrol</h3>
+                        <p id="overlayDesc" class="text-slate-300 text-xs sm:text-sm max-w-md">
+                            Use <strong>WASD / Arrow Keys</strong> or mobile direction buttons below to move. Walk to Supply Stations (Food, Water, Shelter) to pick up items, then bring them to hungry stray pets!
+                        </p>
+                        <button onclick="startGame()" class="px-8 py-3.5 bg-coral-500 hover:bg-coral-600 font-bold rounded-2xl text-white text-base shadow-xl transition btn-glow">
+                            Start 60s Shift!
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile On-Screen D-Pad Controls -->
+                <div class="mt-4 pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-4">
+                    <div class="text-xs text-slate-400 flex items-center gap-2">
+                        <i class="fa-solid fa-keyboard text-coral-400"></i>
+                        <span>Keyboard: WASD / Arrow Keys</span>
+                    </div>
+
+                    <!-- Touch Controls -->
+                    <div class="grid grid-cols-3 gap-1.5 w-36 sm:hidden mx-auto">
+                        <div></div>
+                        <button ontouchstart="setTouchDir('up')" ontouchend="clearTouchDir()" class="p-3 bg-slate-800 active:bg-coral-600 rounded-lg text-center"><i class="fa-solid fa-chevron-up"></i></button>
+                        <div></div>
+                        <button ontouchstart="setTouchDir('left')" ontouchend="clearTouchDir()" class="p-3 bg-slate-800 active:bg-coral-600 rounded-lg text-center"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button ontouchstart="setTouchDir('down')" ontouchend="clearTouchDir()" class="p-3 bg-slate-800 active:bg-coral-600 rounded-lg text-center"><i class="fa-solid fa-chevron-down"></i></button>
+                        <button ontouchstart="setTouchDir('right')" ontouchend="clearTouchDir()" class="p-3 bg-slate-800 active:bg-coral-600 rounded-lg text-center"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+
+                    <div class="text-xs text-slate-400">
+                        High Score: <strong id="highScoreVal" class="text-warmgold-400">0</strong>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="survival-guide" class="py-20 bg-coral-50/50 border-t border-coral-100 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-12 space-y-3">
+                <span class="text-warmgold-700 font-bold uppercase tracking-wider text-xs bg-warmgold-100 px-3 py-1 rounded-full">Actionable Guidance</span>
+                <h2 class="font-rounded font-bold text-3xl sm:text-4xl text-slate-900">Seasonal Survival & First Aid Guide</h2>
+                <p class="text-slate-600 text-sm sm:text-base">
+                    Extreme winter cold and scorching summer heat present critical survival threats. Follow these practical steps to protect street animals.
+                </p>
+            </div>
+
+            <!-- Tabs Header -->
+            <div class="flex justify-center mb-10">
+                <div class="bg-white p-1.5 rounded-2xl flex gap-2 border border-slate-200 shadow-sm">
+                    <button id="tabWinterBtn" onclick="switchGuideTab('winter')" class="px-5 py-2.5 rounded-xl font-bold text-sm transition flex items-center gap-2 bg-coral-500 text-white shadow-md">
+                        <i class="fa-solid fa-snowflake"></i> Winter Survival
+                    </button>
+                    <button id="tabSummerBtn" onclick="switchGuideTab('summer')" class="px-5 py-2.5 rounded-xl font-bold text-sm transition flex items-center gap-2 text-slate-600 hover:text-slate-900">
+                        <i class="fa-solid fa-sun text-amber-500"></i> Summer Heat Safety
+                    </button>
+                </div>
+            </div>
+
+            <!-- Winter Tab Content -->
+            <div id="tabWinterContent" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <div class="lg:col-span-7 space-y-6">
+                    <!-- Interactive Car Hood Widget -->
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-coral-100 text-coral-600 rounded-2xl flex items-center justify-center text-xl font-bold">
+                                🚗
+                            </div>
+                            <div>
+                                <h4 class="font-rounded font-bold text-slate-900 text-base">Interactive "Tap the Car Hood" Widget</h4>
+                                <p class="text-slate-500 text-xs">Click the hood below to simulate checking for sleeping stray cats before driving!</p>
+                            </div>
+                        </div>
+
+                        <!-- Car Hood Graphic Button -->
+                        <div onclick="tapCarHood()" class="relative bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 text-center cursor-pointer group hover:from-slate-700 hover:to-slate-800 transition shadow-inner overflow-hidden">
+                            <div class="text-4xl mb-2 group-hover:scale-110 transition">🚘</div>
+                            <span class="text-xs font-bold text-coral-300 block">CLICK TO TAP CAR HOOD!</span>
+                            <span id="carHoodFeedback" class="text-xs text-slate-300 mt-2 block italic">Engine hood is silent...</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-3">
+                        <h4 class="font-rounded font-bold text-slate-900 text-lg flex items-center gap-2">
+                            <i class="fa-solid fa-box-open text-coral-500"></i> DIY Styrofoam Shelter Blueprint
+                        </h4>
+                        <p class="text-slate-600 text-xs sm:text-sm">
+                            1. Obtain a heavy-duty styrofoam cooler box.<br>
+                            2. Cut a 15cm x 15cm round entrance hole on the side (away from wind).<br>
+                            3. Wrap exterior with a black heavy-duty trash bag to waterproof.<br>
+                            4. Fill inside with <strong>straw/hay or newspaper</strong> (Do NOT use blankets as they absorb moisture and freeze!).
+                        </p>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-8 rounded-3xl shadow-xl space-y-6">
+                    <span class="text-coral-400 text-xs font-bold uppercase tracking-wider">Critical Winter Facts</span>
+                    <h3 class="font-rounded font-bold text-2xl text-white">Hypothermia Time Limit</h3>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        In sub-zero temperatures, an unfed stray cat can succumb to hypothermia in as little as <strong>6 hours</strong>, while a stray dog lasts <strong>17 hours</strong>. High-calorie meals are vital for generating metabolic heat.
+                    </p>
+                    <div class="p-4 bg-white/10 rounded-2xl border border-white/10 text-xs text-slate-200 flex items-center gap-3">
+                        <i class="fa-solid fa-oil-well text-amber-400 text-xl"></i>
+                        <span>Pro Tip: Add a few drops of olive oil to water bowls to prevent fast freezing!</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summer Tab Content (Hidden by default) -->
+            <div id="tabSummerContent" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-3">
+                        <h4 class="font-rounded font-bold text-slate-900 text-lg flex items-center gap-2">
+                            <i class="fa-solid fa-temperature-high text-amber-500"></i> The 5-Second Asphalt Test
+                        </h4>
+                        <p class="text-slate-600 text-xs sm:text-sm">
+                            Press the back of your hand onto the asphalt for 5 seconds. If it's too hot for your hand, it will blister and tear stray dogs' and cats' paw pads! Keep feeding stations in shaded, grassy areas.
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-3">
+                        <h4 class="font-rounded font-bold text-slate-900 text-lg flex items-center gap-2">
+                            <i class="fa-solid fa-faucet-drip text-tealish-500"></i> Ice-Cube Water Stations
+                        </h4>
+                        <p class="text-slate-600 text-xs sm:text-sm">
+                            Place wide, light-colored ceramic or plastic bowls in deep shade. Drop ice cubes into water bowls in the morning so the water stays cool throughout peak afternoon heat.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 bg-gradient-to-br from-amber-600 to-coral-700 text-white p-8 rounded-3xl shadow-xl space-y-6">
+                    <span class="text-amber-200 text-xs font-bold uppercase tracking-wider">Summer Dehydration Warning</span>
+                    <h3 class="font-rounded font-bold text-2xl text-white">3 Days Without Water</h3>
+                    <p class="text-amber-100 text-sm leading-relaxed">
+                        Heatstroke and severe kidney failure are the leading causes of death for stray animals in summer. Placing a single bowl of clean water outside your home saves lives every day.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Interactive Daily Stray Care Checklist -->
+            <div class="mt-12 bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-4">
+                <h3 class="font-rounded font-bold text-xl text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-square-check text-coral-500"></i> Daily Stray Care Action Tracker
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-medium text-slate-700">
+                    <label class="flex items-center gap-3 p-3 bg-coral-50/60 rounded-xl cursor-pointer hover:bg-coral-100 transition">
+                        <input type="checkbox" onchange="updateTracker()" class="tracker-check w-4 h-4 accent-coral-500 rounded">
+                        <span>Placed fresh water in shade</span>
+                    </label>
+
+                    <label class="flex items-center gap-3 p-3 bg-coral-50/60 rounded-xl cursor-pointer hover:bg-coral-100 transition">
+                        <input type="checkbox" onchange="updateTracker()" class="tracker-check w-4 h-4 accent-coral-500 rounded">
+                        <span>Tapped car hood before driving</span>
+                    </label>
+
+                    <label class="flex items-center gap-3 p-3 bg-coral-50/60 rounded-xl cursor-pointer hover:bg-coral-100 transition">
+                        <input type="checkbox" onchange="updateTracker()" class="tracker-check w-4 h-4 accent-coral-500 rounded">
+                        <span>Checked stray shelter condition</span>
+                    </label>
+                </div>
+
+                <div class="text-xs text-slate-500 font-bold">
+                    Today's Progress: <span id="trackerProgress" class="text-coral-600">0 / 3 Actions Completed</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="guardian-quiz" class="py-20 bg-white relative z-10 border-t border-slate-100">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-12 space-y-3">
+                <span class="text-coral-600 font-bold uppercase tracking-wider text-xs bg-coral-100 px-3 py-1 rounded-full">Earn Your Badge</span>
+                <h2 class="font-rounded font-bold text-3xl sm:text-4xl text-slate-900">Stray Guardian Certification Quiz</h2>
+                <p class="text-slate-600 text-sm">
+                    Answer 5 scenarios correctly to earn your official shareable "Certified LittlePaws Stray Guardian" digital badge!
+                </p>
+            </div>
+
+            <!-- Quiz Card Box -->
+            <div class="bg-coral-50/60 rounded-3xl p-6 sm:p-10 shadow-lg border border-coral-100">
+
+                <div id="quizMainBox">
+                    <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-200">
+                        <span id="quizStepIndicator" class="text-xs font-bold text-coral-600 uppercase">Question 1 / 5</span>
+                        <span id="quizScoreBadge" class="text-xs font-bold text-slate-500">Score: 0</span>
+                    </div>
+
+                    <div id="quizQuestionBody" class="space-y-6">
+                        <!-- Questions rendered via JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Quiz Completion Certificate Output (Hidden initially) -->
+                <div id="quizCertBox" class="hidden text-center space-y-6">
+                    <div id="certificateCard" class="bg-gradient-to-br from-amber-50 via-white to-coral-50 p-8 rounded-3xl border-4 border-warmgold-400 shadow-2xl relative max-w-lg mx-auto text-slate-900 space-y-4">
+                        <div class="text-4xl">🏆</div>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-coral-600 block">OFFICIAL DIGITAL CERTIFICATE</span>
+                        <h3 class="font-rounded font-extrabold text-2xl text-slate-900">Certified Stray Guardian</h3>
+                        <p class="text-xs text-slate-600">This certifies that</p>
+                        
+                        <input type="text" id="certNameInput" value="Kind Guardian" placeholder="Enter Your Name" class="text-center font-rounded font-bold text-xl text-coral-600 bg-transparent border-b-2 border-coral-400 focus:outline-none px-2 py-1">
+
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Has successfully mastered scientific stray animal welfare, seasonal emergency survival protocols, and humane treatment standards.
+                        </p>
+
+                        <div class="pt-4 border-t border-amber-200/80 flex items-center justify-between text-[10px] text-slate-500 font-bold">
+                            <span>Issue Date: October 2026</span>
+                            <span>ID: LP-GUARDIAN-2026</span>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-center gap-4">
+                        <button onclick="shareCertificate()" class="px-6 py-3 bg-coral-600 text-white font-bold text-sm rounded-xl hover:bg-coral-700 transition shadow-md flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-copy"></i> Copy Certificate Info
+                        </button>
+                        <button onclick="restartQuiz()" class="px-6 py-3 bg-white border border-slate-200 text-slate-700 font-bold text-sm rounded-xl hover:bg-slate-50 transition">
+                            Retake Quiz
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-slate-900 text-white pt-16 pb-12 border-t border-slate-800 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-slate-800">
+
+                <div class="md:col-span-2 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-coral-500 rounded-xl flex items-center justify-center text-white">
+                            <i class="fa-solid fa-paw text-xl"></i>
+                        </div>
+                        <span class="font-rounded font-bold text-2xl text-white">LittlePaws</span>
+                    </div>
+                    <p class="text-slate-400 text-xs sm:text-sm max-w-md">
+                        LittlePaws is an independent open-access platform committed to scientific stray animal welfare, humane population control, and community-driven compassion.
+                    </p>
+                </div>
+
+                <div class="space-y-3">
+                    <h4 class="font-bold text-slate-200 text-sm">Emergency Hotlines</h4>
+                    <ul class="text-xs text-slate-400 space-y-2">
+                        <li><i class="fa-solid fa-phone text-coral-400 mr-2"></i> Local Municipal Vet Services</li>
+                        <li><i class="fa-solid fa-shield-cat text-tealish-400 mr-2"></i> Animal Protection Police</li>
+                        <li><i class="fa-solid fa-truck-medical text-amber-400 mr-2"></i> 24/7 Emergency Vet Line</li>
+                    </ul>
+                </div>
+
+                <div class="space-y-3">
+                    <h4 class="font-bold text-slate-200 text-sm">Quick Links</h4>
+                    <ul class="text-xs text-slate-400 space-y-2">
+                        <li><a href="#calculator" class="hover:text-coral-400 transition">RER Calculator</a></li>
+                        <li><a href="#game-section" class="hover:text-coral-400 transition">Rescue Game</a></li>
+                        <li><a href="#survival-guide" class="hover:text-coral-400 transition">Shelter Blueprint</a></li>
+                        <li><a href="#guardian-quiz" class="hover:text-coral-400 transition">Guardian Certification</a></li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <div class="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+                <p>© 2026 LittlePaws Stray Animal Welfare Hub. Built with love for street animals.</p>
+                <div class="flex gap-4">
+                    <a href="#" class="hover:underline">Privacy Policy</a>
+                    <a href="#" class="hover:underline">Terms of Care</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let audioCtx = null;
+        let isMuted = false;
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function toggleAudio() {
+            isMuted = !isMuted;
+            const icon = document.getElementById('soundIcon');
+            if (isMuted) {
+                icon.className = 'fa-solid fa-volume-xmark text-lg text-rose-500';
+            } else {
+                icon.className = 'fa-solid fa-volume-high text-lg';
+                playSynthBeep(587.33, 'sine', 0.1);
+            }
+        }
+
+        function playSynthBeep(freq, type = 'sine', duration = 0.15, vol = 0.1) {
+            if (isMuted) return;
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+                gain.gain.setValueAtTime(vol, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + duration);
+            } catch (e) { console.log(e); }
+        }
+
+        function playPickupSound() {
+            if (isMuted) return;
+            playSynthBeep(440, 'triangle', 0.08);
+            setTimeout(() => playSynthBeep(880, 'triangle', 0.12), 80);
+        }
+
+        function playScoreSound() {
+            if (isMuted) return;
+            playSynthBeep(523.25, 'sine', 0.1);
+            setTimeout(() => playSynthBeep(659.25, 'sine', 0.1), 80);
+            setTimeout(() => playSynthBeep(783.99, 'sine', 0.2), 160);
+        }
+
+        function initFloatingPaws() {
+            const container = document.getElementById('pawContainer');
+            const icons = ['fa-paw', 'fa-heart', 'fa-bone'];
+            for (let i = 0; i < 16; i++) {
+                const paw = document.createElement('i');
+                const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+                paw.className = `fa-solid ${randomIcon} paw-bg-item`;
+                
+                paw.style.fontSize = `${Math.random() * 20 + 14}px`;
+                paw.style.left = `${Math.random() * 100}%`;
+                paw.style.animationDuration = `${Math.random() * 12 + 10}s`;
+                paw.style.animationDelay = `${Math.random() * 8}s`;
+
+                container.appendChild(paw);
+            }
+        }
+
+        // Mobile Drawer
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        });
+        document.querySelectorAll('.mobile-link').forEach(link => {
+            link.addEventListener('click', () => document.getElementById('mobileMenu').classList.add('hidden'));
+        });
+
+        function runCalculator() {
+            const cats = parseInt(document.getElementById('catInput').value);
+            const kittens = parseInt(document.getElementById('kittenInput').value);
+            const smallDogs = parseInt(document.getElementById('smallDogInput').value);
+            const medDogs = parseInt(document.getElementById('medDogInput').value);
+            const largeDogs = parseInt(document.getElementById('largeDogInput').value);
+
+            document.getElementById('catVal').innerText = cats;
+            document.getElementById('kittenVal').innerText = kittens;
+            document.getElementById('smallDogVal').innerText = smallDogs;
+            document.getElementById('medDogVal').innerText = medDogs;
+            document.getElementById('largeDogVal').innerText = largeDogs;
+
+            // RER = 70 * (weight_kg ^ 0.75)
+            // DER multipliers: Adult cat = 1.2, Kitten = 2.5, Small Dog = 1.5, Med Dog = 1.6, Large Dog = 1.7
+            const rerCat = 70 * Math.pow(4.0, 0.75) * 1.2; // ~238 kcal/cat
+            const rerKitten = 70 * Math.pow(1.5, 0.75) * 2.2; // ~208 kcal/kitten
+            const rerSmallDog = 70 * Math.pow(6.0, 0.75) * 1.5; // ~402 kcal/dog
+            const rerMedDog = 70 * Math.pow(17.0, 0.75) * 1.6; // ~937 kcal/dog
+            const rerLargeDog = 70 * Math.pow(32.0, 0.75) * 1.7; // ~1601 kcal/dog
+
+            let totalCalories = (cats * rerCat) + (kittens * rerKitten) + (smallDogs * rerSmallDog) + (medDogs * rerMedDog) + (largeDogs * rerLargeDog);
+
+            const season = document.getElementById('seasonSelect').value;
+            let waterMultiplier = 1.0;
+
+            if (season === 'winter') {
+                totalCalories *= 1.25; // +25% thermoregulation calorie demand
+            } else if (season === 'summer') {
+                waterMultiplier = 1.30; // +30% water hydration demand
+            }
+
+            // Water demand: ~50ml per kg for cats, ~60ml per kg for dogs
+            let totalWaterML = ((cats * 4.0 * 50) + (kittens * 1.5 * 60) + (smallDogs * 6.0 * 60) + (medDogs * 17.0 * 60) + (largeDogs * 32.0 * 60)) * waterMultiplier;
+            let totalWaterL = totalWaterML / 1000;
+
+            const diet = document.getElementById('dietSelect').value;
+            let kibbleGrams = 0;
+            let wetCans = 0;
+
+            // Kibble = 3.8 kcal/g; Wet Can = 270 kcal per 300g can
+            if (diet === 'kibble') {
+                kibbleGrams = totalCalories / 3.8;
+            } else if (diet === 'wet') {
+                wetCans = totalCalories / 270;
+            } else { // 50/50 mixed
+                kibbleGrams = (totalCalories * 0.5) / 3.8;
+                wetCans = (totalCalories * 0.5) / 270;
+            }
+
+            // UI Render
+            document.getElementById('resCalories').innerText = Math.round(totalCalories).toLocaleString();
+            document.getElementById('resWater').innerText = totalWaterL.toFixed(1);
+            document.getElementById('resKibble').innerText = Math.round(kibbleGrams).toLocaleString();
+            document.getElementById('resWetCans').innerText = wetCans.toFixed(1);
+
+            const monthlyKibbleKg = (kibbleGrams * 30) / 1000;
+            document.getElementById('resMonthlyKibble').innerText = `${monthlyKibbleKg.toFixed(1)} Kg`;
+
+            const totalAnimals = cats + kittens + smallDogs + medDogs + largeDogs;
+            const bowlCount = Math.max(1, Math.ceil(totalAnimals / 3));
+            document.getElementById('resBowlsCount').innerText = `${bowlCount} Water, ${bowlCount} Food Stations`;
+        }
+
+        function copyCalcSummary() {
+            const cal = document.getElementById('resCalories').innerText;
+            const water = document.getElementById('resWater').innerText;
+            const kibble = document.getElementById('resKibble').innerText;
+            
+            const text = `🐾 LittlePaws Stray Animal Daily Feed Plan:\n- Total Energy Need: ${cal} kcal/day\n- Fresh Water Needed: ${water} Liters/day\n- Kibble Required: ${kibble} Grams/day\nCalculated scientifically with LittlePaws RER Formula!`;
+
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+
+            showToast('Feeding Plan Copied to Clipboard!');
+        }
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let gameRunning = false;
+        let gameTime = 60;
+        let gameScore = 0;
+        let gameCombo = 1;
+        let highScore = localStorage.getItem('lp_highscore') || 0;
+        document.getElementById('highScoreVal').innerText = highScore;
+
+        let player = {
+            x: 400,
+            y: 250,
+            size: 18,
+            speed: 3.8,
+            item: null // 'food' | 'water' | 'shelter'
+        };
+
+        const stations = [
+            { id: 'food', name: 'Food Depot', x: 80, y: 80, color: '#FF7043', icon: '🥩' },
+            { id: 'water', name: 'Water Well', x: 720, y: 80, color: '#26A69A', icon: '💧' },
+            { id: 'shelter', name: 'Shelter Hub', x: 80, y: 420, color: '#FFCA28', icon: '🏠' }
+        ];
+
+        let strayPets = [];
+        let keys = {};
+        let touchDir = null;
+
+        window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+        window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+        function setTouchDir(dir) { touchDir = dir; }
+        function clearTouchDir() { touchDir = null; }
+
+        function spawnStrayPet() {
+            if (strayPets.length >= 5) return;
+            const needs = ['food', 'water', 'shelter'];
+            const randomNeed = needs[Math.floor(Math.random() * needs.length)];
+            const isCat = Math.random() > 0.4;
+
+            strayPets.push({
+                x: 180 + Math.random() * 440,
+                y: 140 + Math.random() * 220,
+                type: isCat ? '🐱' : '🐶',
+                need: randomNeed,
+                patience: 100, // decays over time
+                maxPatience: 100
+            });
+        }
+
+        let gameTimerInterval = null;
+        let spawnInterval = null;
+
+        function startGame() {
+            getAudioContext();
+            gameRunning = true;
+            gameScore = 0;
+            gameCombo = 1;
+            gameTime = 60;
+            player.x = 400;
+            player.y = 250;
+            player.item = null;
+            strayPets = [];
+
+            document.getElementById('gameOverlay').classList.add('hidden');
+            document.getElementById('gameScore').innerText = '0';
+            document.getElementById('gameCombo').innerText = 'x1';
+            document.getElementById('gameItem').innerText = 'None';
+            document.getElementById('gameTimer').innerText = '60s';
+
+            spawnStrayPet();
+            spawnStrayPet();
+
+            clearInterval(gameTimerInterval);
+            clearInterval(spawnInterval);
+
+            gameTimerInterval = setInterval(() => {
+                if (!gameRunning) return;
+                gameTime--;
+                document.getElementById('gameTimer').innerText = `${gameTime}s`;
+                if (gameTime <= 0) {
+                    endGame();
+                }
+            }, 1000);
+
+            spawnInterval = setInterval(() => {
+                if (gameRunning) spawnStrayPet();
+            }, 3500);
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function endGame() {
+            gameRunning = false;
+            clearInterval(gameTimerInterval);
+            clearInterval(spawnInterval);
+
+            if (gameScore > highScore) {
+                highScore = gameScore;
+                localStorage.setItem('lp_highscore', highScore);
+                document.getElementById('highScoreVal').innerText = highScore;
+            }
+
+            document.getElementById('overlayTitle').innerText = 'Shift Complete!';
+            document.getElementById('overlayDesc').innerHTML = `You saved neighborhood strays and scored <strong class="text-coral-400">${gameScore} points</strong>!`;
+            document.getElementById('gameOverlay').classList.remove('hidden');
+        }
+
+        function updateGame() {
+            if (!gameRunning) return;
+
+            // Player Movement
+            if (keys['arrowup'] || keys['w'] || touchDir === 'up') player.y -= player.speed;
+            if (keys['arrowdown'] || keys['s'] || touchDir === 'down') player.y += player.speed;
+            if (keys['arrowleft'] || keys['a'] || touchDir === 'left') player.x -= player.speed;
+            if (keys['arrowright'] || keys['d'] || touchDir === 'right') player.x += player.speed;
+
+            // Canvas Boundary Clamping
+            player.x = Math.max(25, Math.min(canvas.width - 25, player.x));
+            player.y = Math.max(25, Math.min(canvas.height - 25, player.y));
+
+            // Station Pickups
+            stations.forEach(s => {
+                const dist = Math.hypot(player.x - s.x, player.y - s.y);
+                if (dist < 38) {
+                    if (player.item !== s.id) {
+                        player.item = s.id;
+                        playPickupSound();
+                        const itemNames = { food: 'Food Kibble 🥩', water: 'Fresh Water 💧', shelter: 'Warm Blanket 🏠' };
+                        document.getElementById('gameItem').innerText = itemNames[s.id];
+                    }
+                }
+            });
+
+            // Animal Interactions & Patience Decay
+            for (let i = strayPets.length - 1; i >= 0; i--) {
+                const pet = strayPets[i];
+                pet.patience -= 0.12;
+
+                const dist = Math.hypot(player.x - pet.x, player.y - pet.y);
+                if (dist < 32 && player.item === pet.need) {
+                    // Fulfilled!
+                    gameScore += 100 * gameCombo;
+                    gameCombo = Math.min(5, gameCombo + 1);
+                    playScoreSound();
+
+                    document.getElementById('gameScore').innerText = gameScore;
+                    document.getElementById('gameCombo').innerText = `x${gameCombo}`;
+
+                    player.item = null;
+                    document.getElementById('gameItem').innerText = 'None';
+                    strayPets.splice(i, 1);
+                    spawnStrayPet();
+                    continue;
+                }
+
+                if (pet.patience <= 0) {
+                    strayPets.splice(i, 1);
+                    gameCombo = 1;
+                    document.getElementById('gameCombo').innerText = 'x1';
+                    spawnStrayPet();
+                }
+            }
+        }
+
+        function renderGame() {
+            // Draw Map Background
+            ctx.fillStyle = '#F1F8E9';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Pathway grid
+            ctx.strokeStyle = '#DCEDC8';
+            ctx.lineWidth = 2;
+            for (let x = 0; x < canvas.width; x += 40) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += 40) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+            }
+
+            // Draw Supply Stations
+            stations.forEach(s => {
+                ctx.fillStyle = s.color;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, 28, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.stroke();
+
+                ctx.font = '20px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(s.icon, s.x, s.y);
+
+                ctx.font = 'bold 10px Inter';
+                ctx.fillStyle = '#334155';
+                ctx.fillText(s.name, s.x, s.y + 38);
+            });
+
+            // Draw Stray Pets
+            strayPets.forEach(pet => {
+                // Pet Icon
+                ctx.font = '28px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(pet.type, pet.x, pet.y);
+
+                // Need Bubble above pet
+                ctx.fillStyle = '#FFFFFF';
+                ctx.beginPath();
+                ctx.arc(pet.x, pet.y - 28, 14, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#FF7043';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                const icons = { food: '🥩', water: '💧', shelter: '🏠' };
+                ctx.font = '12px sans-serif';
+                ctx.fillText(icons[pet.need], pet.x, pet.y - 28);
+
+                // Patience Bar
+                const barW = 30;
+                const pct = pet.patience / pet.maxPatience;
+                ctx.fillStyle = '#E2E8F0';
+                ctx.fillRect(pet.x - barW / 2, pet.y + 18, barW, 4);
+                ctx.fillStyle = pct > 0.4 ? '#26A69A' : '#EF4444';
+                ctx.fillRect(pet.x - barW / 2, pet.y + 18, barW * pct, 4);
+            });
+
+            // Draw Player Guardian
+            ctx.fillStyle = '#FF7043';
+            ctx.beginPath();
+            ctx.arc(player.x, player.y, player.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.stroke();
+
+            // Player Icon
+            ctx.font = '14px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🏃', player.x, player.y);
+
+            // Item Indicator on player
+            if (player.item) {
+                const icons = { food: '🥩', water: '💧', shelter: '🏠' };
+                ctx.font = '12px sans-serif';
+                ctx.fillText(icons[player.item], player.x + 14, player.y - 14);
+            }
+        }
+
+        function gameLoop() {
+            if (gameRunning) {
+                updateGame();
+                renderGame();
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function switchGuideTab(tab) {
+            const btnWinter = document.getElementById('tabWinterBtn');
+            const btnSummer = document.getElementById('tabSummerBtn');
+            const contentWinter = document.getElementById('tabWinterContent');
+            const contentSummer = document.getElementById('tabSummerContent');
+
+            if (tab === 'winter') {
+                btnWinter.className = 'px-5 py-2.5 rounded-xl font-bold text-sm transition flex items-center gap-2 bg-coral-500 text-white shadow-md';
+                btnSummer.className = 'px-5 py-2.5 rounded-xl font-bold text-sm transition flex items-center gap-2 text-slate-600 hover:text-slate-900';
+                contentWinter.classList.remove('hidden');
+                contentSummer.classList.add('hidden');
+            } else {
+                btnSummer.className = 'px-5 py-2.5 rounded-xl font-bold text-sm transition flex items-center gap-2 bg-amber-500 text-white shadow-md';
+                btnWinter.className = 'px-5 py-2.5 rounded-xl font-bold text-sm transition flex items-center gap-2 text-slate-600 hover:text-slate-900';
+                contentSummer.classList.remove('hidden');
+                contentWinter.classList.add('hidden');
+            }
+        }
+
+        function tapCarHood() {
+            playSynthBeep(180, 'square', 0.1, 0.2);
+            setTimeout(() => playSynthBeep(150, 'square', 0.15, 0.2), 120);
+
+            const feedback = document.getElementById('carHoodFeedback');
+            feedback.innerHTML = `<span class="text-warmgold-400 font-bold">🐱 *MEOW!* A stray cat ran out safely from under the engine! You saved a life!</span>`;
+
+            showToast('🐱 Tap Car Hood Action Completed!');
+        }
+
+        function updateTracker() {
+            const checkboxes = document.querySelectorAll('.tracker-check');
+            let checked = 0;
+            checkboxes.forEach(cb => { if (cb.checked) checked++; });
+
+            document.getElementById('trackerProgress').innerText = `${checked} / 3 Actions Completed`;
+            if (checked === 3) {
+                showToast('🎉 All Daily Stray Care Actions Complete!');
+            }
+        }
+
+        const quizQuestions = [
+            {
+                q: "1. What is the safest food option to give a hungry stray dog or cat?",
+                options: [
+                    "Cooked chicken bones from dinner",
+                    "Commercial balanced dry kibble or unseasoned plain boiled chicken",
+                    "A bowl of cow's milk"
+                ],
+                correct: 1,
+                explain: "Cooked bones splinter easily in stomach walls, and milk causes severe lactose diarrhea."
+            },
+            {
+                q: "2. Why is tapping your car engine hood essential in winter before driving?",
+                options: [
+                    "To test if the engine battery is charged",
+                    "Cats seek warmth inside engine bays and need warning to escape safely",
+                    "To clear snow off the hood"
+                ],
+                correct: 1,
+                explain: "Engine heat attracts sleeping stray cats in cold months."
+            },
+            {
+                q: "3. What does TNR stand for in humane stray population management?",
+                options: [
+                    "Trap-Neuter-Return",
+                    "Transport-Nourish-Relocate",
+                    "Tag-Number-Track"
+                ],
+                correct: 0,
+                explain: "TNR stabilizes street animal colonies humanely and reduces disease spread."
+            },
+            {
+                q: "4. What should you put inside a DIY stray winter shelter for heat insulation?",
+                options: [
+                    "Cotton blankets (they absorb moisture and freeze)",
+                    "Straw, hay, or shredded newspaper (repels moisture)",
+                    "Metal sheets"
+                ],
+                correct: 1,
+                explain: "Straw/hay provides warm dry air insulation without freezing."
+            },
+            {
+                q: "5. In hot summer months, what is the most critical resource for strays?",
+                options: [
+                    "Salty treats",
+                    "Clean fresh water placed in shaded areas",
+                    "Heavy thick rugs"
+                ],
+                correct: 1,
+                explain: "Dehydration causes fatal heatstroke and kidney failure in summer."
+            }
+        ];
+
+        let quizIndex = 0;
+        let quizScore = 0;
+
+        function renderQuiz() {
+            const container = document.getElementById('quizQuestionBody');
+            const q = quizQuestions[quizIndex];
+
+            document.getElementById('quizStepIndicator').innerText = `Question ${quizIndex + 1} / ${quizQuestions.length}`;
+            document.getElementById('quizScoreBadge').innerText = `Score: ${quizScore}`;
+
+            let html = `
+                <h4 class="font-rounded font-bold text-lg text-slate-900">${q.q}</h4>
+                <div class="space-y-3">
+            `;
+
+            q.options.forEach((opt, idx) => {
+                html += `
+                    <button onclick="handleQuizAnswer(${idx})" class="w-full text-left p-4 rounded-2xl bg-white border border-slate-200 hover:border-coral-400 hover:bg-coral-50 transition font-medium text-slate-700 text-sm flex items-center justify-between group">
+                        <span>${opt}</span>
+                        <i class="fa-solid fa-chevron-right text-slate-300 group-hover:text-coral-500"></i>
+                    </button>
+                `;
+            });
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function handleQuizAnswer(selected) {
+            const q = quizQuestions[quizIndex];
+            if (selected === q.correct) {
+                quizScore += 20;
+                playScoreSound();
+                showToast('✨ Correct Answer!');
+            } else {
+                showToast(`ℹ️ Fact: ${q.explain}`);
+            }
+
+            quizIndex++;
+            if (quizIndex < quizQuestions.length) {
+                renderQuiz();
+            } else {
+                showCertificate();
+            }
+        }
+
+        function showCertificate() {
+            document.getElementById('quizMainBox').classList.add('hidden');
+            document.getElementById('quizCertBox').classList.remove('hidden');
+        }
+
+        function restartQuiz() {
+            quizIndex = 0;
+            quizScore = 0;
+            document.getElementById('quizCertBox').classList.add('hidden');
+            document.getElementById('quizMainBox').classList.remove('hidden');
+            renderQuiz();
+        }
+
+        function shareCertificate() {
+            const name = document.getElementById('certNameInput').value || 'Kind Guardian';
+            const text = `🏆 LittlePaws Stray Guardian Certificate\nCertified: ${name}\nMastered scientific stray animal welfare and emergency survival protocols!`;
+
+            const temp = document.createElement('textarea');
+            temp.value = text;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+
+            showToast('Certificate Info Copied to Clipboard!');
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-6 right-6 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl z-50 text-xs sm:text-sm font-semibold flex items-center gap-2 border border-slate-700 animate-bounce';
+            toast.innerHTML = `<i class="fa-solid fa-paw text-coral-400"></i> ${msg}`;
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.remove(), 3200);
+        }
+
+        window.onload = function() {
+            initFloatingPaws();
+            runCalculator();
+            renderGame(); // Draw static start canvas
+            renderQuiz();
+        };
+    </script>
+</body>
+</html>
